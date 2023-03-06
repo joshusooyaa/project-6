@@ -9,11 +9,10 @@ from flask_restful import Resource
 # You need to implement this in database/models.py
 from database.models import Brevet
 
-class Brevet(Resource):
-  def get(self, id):
-    object = Brevet.objects.get(id=id)
-    python_dict = object.to_mongo().to_dict()
-    return python_dict, 200
+class Brev(Resource):
+  def get(self, _id):
+    json_object = Brevet.objects.get(id=_id).to_json()
+    return Response(json_object, mimetype="application/json", status=200)
 
 
 # MongoEngine queries:

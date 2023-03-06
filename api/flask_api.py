@@ -9,7 +9,7 @@ import logging
 
 # You need to implement two resources: Brevet and Brevets.
 # Uncomment when done:
-# from resources.brevet import Brevet
+from resources.brevet import Brev
 from resources.brevets import Brevets
 
 # Connect MongoEngine to mongodb
@@ -25,7 +25,7 @@ api = Api(app)
 
 # Bind resources to paths here:
 api.add_resource(Brevets, "/api/brevets")
-# api.add_resource(Brevet, "/brevet/<_id>")
+api.add_resource(Brev, "/api/brevet/<_id>")
 
 if __name__ == "__main__":
     app.run(port=port_num, host="0.0.0.0")
