@@ -77,14 +77,9 @@ def _calc_times():
 
 @app.route("/_fetch")
 def _fetch_data():
-    brev, start, cp_dict = brevet_find()
-    
-    app.logger.debug(f"brev: {brev}")
-    app.logger.debug(f"start: {start}")
-    app.logger.debug(f"cp_dict: {cp_dict}")
-    
+    brev, start, cp_dict, cps = brevet_find()
 
-    result = {"brevet": brev, "start_time": start, "cp_data": cp_dict}
+    result = {"brevet": brev, "start_time": start, "cp_data": cp_dict, "cps": cps}
     return flask.jsonify(result=result)
 
 
@@ -97,8 +92,14 @@ def _insert_data():
         start_date = input_json["start_date"]
         brevet_distance = input_json["brevet_distance"]
         cp_data = input_json["items"]
+        cps = input_json["cps"]
+        
+        if (len(cps) == 0):
+            return flask.jsonify(result={}, message="No checkpoint information", status=0, mongo_id="None")
+        
+        app.logger.debug("Sending insert")
 
-        _id = brevet_insert(brevet_distance, start_date, cp_data)
+        _id = brevet_insert(brevet_distance, start_date, cp_data, cps)
         
         app.logger.debug(f"\n\nid is: {_id}\n\n")
         

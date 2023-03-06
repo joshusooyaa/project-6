@@ -13,7 +13,7 @@ class Checkpoint(EmbeddedDocument):
     location = StringField(required=False)
     open_time = DateTimeField(required=True)
     close_time = DateTimeField(required=True)
-    cp = IntField(required=True)
+    # cp = IntField(required=True)
     
     # Convert open time and close time to datetime objects
     def __init__(self, *args, **kwargs):
@@ -36,7 +36,7 @@ class Brevet(Document):
     length = FloatField(required=True)
     start_time = DateTimeField(required=True)
     checkpoints = EmbeddedDocumentListField(Checkpoint, required=True)
-    # cp = ListField(required=True)
+    cps = ListField(field=IntField(), required=True) # Used to save what cp the data is saved in
     
     # Convert start_time to datetime object
     def __init__(self, *args, **kwargs):

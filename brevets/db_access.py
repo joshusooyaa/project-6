@@ -6,9 +6,10 @@ API_ADDR = os.environ["API_ADDR"]
 API_PORT = os.environ["API_PORT"]
 API_URL = f"http://{API_ADDR}:{API_PORT}/api/"
 
-def brevet_insert(brevet_dist, start_time, cp_data):
+def brevet_insert(brevet_dist, start_time, cp_data, cps):
   from flask_brevets import app
-  _id = requests.post(f"{API_URL}/brevets", json={"brevet_dist": brevet_dist, "start_time": start_time, "cp_data": cp_data}).json()
+  app.logger.debug(f"POSTING")
+  _id = requests.post(f"{API_URL}/brevets", json={"brevet_dist": brevet_dist, "start_time": start_time, "cp_data": cp_data, "cps": cps}).json()
   app.logger.debug(f"Object with id: {_id} inserted")
   return _id
   
@@ -25,11 +26,13 @@ def brevet_find():
   # To change back, divide by 1000 since fromtimestamp wants it in seconds
   # Then format the time back to how it was originally inputted (strftime)
   race["start_time"] = datetime.fromtimestamp(int(race["start_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
-  race["checkpoints"][0]["open_time"] = datetime.fromtimestamp(int(race["checkpoints"][0]["open_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
-  race["checkpoints"][0]["close_time"] = datetime.fromtimestamp(int(race["checkpoints"][0]["close_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
+  
+  for i in range(len(race["cps"])):
+    race["checkpoints"][i]["open_time"] = datetime.fromtimestamp(int(race["checkpoints"][i]["open_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
+    race["checkpoints"][i]["close_time"] = datetime.fromtimestamp(int(race["checkpoints"][i]["close_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
   
   app.logger.debug(f"Race: {race}")
   
   # race is a dictionary: {"length": length, "start_time": start_time, "checkpoints": list, len 0, containing a dict of cp data}
   # Return all entries (except for id)
-  return race["length"], race["start_time"], race["checkpoints"]
+  return race["length"], race["start_time"], race["checkpoints"], race["cps"]
