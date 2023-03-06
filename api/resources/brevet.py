@@ -14,7 +14,13 @@ class Brev(Resource):
     json_object = Brevet.objects.get(id=_id).to_json()
     return Response(json_object, mimetype="application/json", status=200)
 
+  def delete(self, _id):
+    Brevet.objects.get(id=_id).delete()
 
+  def put(self, _id):
+    pass
+  
+  
 # MongoEngine queries:
 # Brevet.objects() : similar to find_all. Returns a MongoEngine query
 # Brevet(...).save() : creates new brevet
