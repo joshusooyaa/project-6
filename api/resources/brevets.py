@@ -6,6 +6,53 @@ from flask_restful import Resource
 
 # You need to implement this in database/models.py
 from database.models import Brevet
+from database.models import Checkpoint
+
+import datetime 
+
+
+class Brevets(Resource):
+  def get(self):
+    from flask_api import app
+    app.logger.debug("GET REQUEST")
+    json_object = Brevet.objects().to_json()
+    app.logger.debug("GET REQ FULFILLED")
+    return Response(json_object, mimetype="application/json", status=200)
+  
+  def post(self):
+    try:
+    
+      # from flask_api import app
+
+      input_json = request.json # Get data sent from JS in HTTP POST request
+      
+      # We're adding information now - 
+      # length, start time, and checkpoint information (dict)
+      length = input_json["brevet_dist"]
+      start_time = input_json["start_time"]
+      checkpoints = input_json["cp_data"]
+      
+      # Because checkpoints is a list, we want to loop through and create Checkpoint objects
+      checkpointList = []
+      length = len(checkpoints["cp"])
+      for i in range(length):
+        checkpoint = Checkpoint(
+          distance=checkpoints["cp_dist"][i],
+          location=checkpoints["location"][i],
+          open_time=checkpoints["ot"][i], 
+          close_time=checkpoints["ct"][i],
+          cp=checkpoints["cp"][i]
+        )
+        checkpointList.append(checkpoint)
+        # app.logger.debug(f"checkpointlist: {checkpointList}")
+      
+      _object = Brevet(length=length, start_time=start_time, checkpoints=checkpointList).save()
+      # app.logger.debug(f"id: {_object.id}")
+      return {'_id': str(_object.id)}, 200 
+    
+    except Exception as e:
+      app.logger.error(str(e))
+      return -1
 
 # MongoEngine queries:
 # Brevet.objects() : similar to find_all. Returns a MongoEngine query

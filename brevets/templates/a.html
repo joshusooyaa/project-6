@@ -174,7 +174,6 @@
                               for (let i = 0; i < 20; i++) {
                                  open_time_field[i].value = ""
                                  close_time_field[i].value = ""
-                                 location[i].value = ""
                                  km[i].value = ""
                                  mi[i].value = ""
                               }
@@ -183,15 +182,11 @@
                               // {'brevet': '', 'start_time': '', 'cp_data': {'cp': [], 'ot': [], 'ct': [], 'cp_dist': []}}
                               console.log(data.result)
 
-                              var cps = data.result.cp_data[0]["cp"] // Checkpoints
-                              var ots = data.result.cp_data[0]["open_time"] // Open times
-                              var cts = data.result.cp_data[0]["close_time"] // Close times
-                              var cp_dist  = data.result.cp_data[0]["distance"] // km (distance)
-
-                              console.log(cps)
-                              console.log(ots)
-                              console.log(cts)
-                              console.log(cp_dist)
+                              var cps = data.result.cp_data["cp"] // Checkpoints
+                              var ots = data.result.cp_data["ot"] // Open times
+                              var cts = data.result.cp_data["ct"] // Close times
+                              var cp_dist  = data.result.cp_data["cp_dist"] // km (distance)
+                              var location = data.result.cp_data["location"]
                               
                               var len = cps.length; // Get number of checkpoints saved
                               
@@ -199,6 +194,7 @@
                               for (let i = 0; i < len; i++) {
                                  open_time_field[cps[i]].value = moment(ots[i]).format("YYYY-MM-DDTHH:mm");
                                  close_time_field[cps[i]].value = moment(cts[i]).format("YYYY-MM-DDTHH:mm");
+                                 location[cps[i]].value = location[i];
                                  km[cps[i]].value = cp_dist[i];
                                  mi[cps[i]].value = (0.621371 * km[cps[i]].value).toFixed(6);
                               }
@@ -225,7 +221,6 @@
                      var otfArray = [];
                      var ctfArray = [];
                      var cpvals = [];
-                     var locations = [];
                      var start_date = $("#begin_date").val();
                      var brevet_distance = $("#brevet_dist_km").val();
                      
@@ -234,20 +229,20 @@
 
                      for (let i = 0; i < 20; i++) {
                         if (km[i].value != '') {
-                           cpvals[count++] = i;
-                           locations.push(location[i].value)
+                           cpvals.push(count++)
                            kmArray.push(km[i].value);
+                           locArray.push(location[i].value);
                            otfArray.push(open_time_field[i].value);
                            ctfArray.push(close_time_field[i].value);
                         }
                      }
 
                      items_json = {
-                        "cp": cpvals,
-                        "location": locations,
+                        "cp": cpvals
+                        "cp_dist": kmArray,
+                        "location": locArray, 
                         "ot": otfArray,
                         "ct": ctfArray,
-                        "cp_dist": kmArray,
                      }
 
 
@@ -268,6 +263,7 @@
                               for (let i = 0; i < 20; i++) {
                                  open_time_field[i].value = "";
                                  close_time_field[i].value = "";
+                                 location[i].value = "";
                                  km[i].value = ""
                                  mi[i].value = ""
                               }

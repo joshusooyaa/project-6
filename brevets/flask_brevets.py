@@ -5,13 +5,14 @@ Replacement for RUSA ACP brevet time calculator
 """
 
 import flask
+import os
 from flask import request
 import arrow  # Replacement for datetime, based on moment.js
 import acp_times  # Brevet time calculations
-import config
 import logging
 from db_access import brevet_find, brevet_insert
 import json
+import requests
 
 from datetime import timedelta
 
@@ -19,7 +20,9 @@ from datetime import timedelta
 # Globals
 ###
 app = flask.Flask(__name__)
-CONFIG = config.configuration()
+app.debug = True if "DEBUG" not in os.environ else os.environ["DEBUG"]
+port_num = True if "PORT" not in os.environ else os.environ["PORT"]
+app.logger.setLevel(logging.DEBUG)
 
 ###
 # Pages
@@ -74,19 +77,20 @@ def _calc_times():
 
 @app.route("/_fetch")
 def _fetch_data():
-    success, brevet, start, cp_data = brevet_find()
+    brev, start, cp_dict = brevet_find()
     
-    if success: 
-        result = {"brevet": brevet, "start_time": start, "cp_data": cp_data}
-        return flask.jsonify(result=result)
-    else:
-        return flask.jsonify(err="No data saved")
+    app.logger.debug(f"brev: {brev}")
+    app.logger.debug(f"start: {start}")
+    app.logger.debug(f"cp_dict: {cp_dict}")
+    
+
+    result = {"brevet": brev, "start_time": start, "cp_data": cp_dict}
+    return flask.jsonify(result=result)
+
 
 
 @app.route("/_insert", methods=["POST"])
 def _insert_data():
-    message="Server error!" # Default error message
-    
     try:
         input_json = request.json
 
@@ -94,19 +98,16 @@ def _insert_data():
         brevet_distance = input_json["brevet_distance"]
         cp_data = input_json["items"]
 
-        status, message = brevet_insert(brevet_distance, start_date, cp_data)
+        _id = brevet_insert(brevet_distance, start_date, cp_data)
         
-        return flask.jsonify(result={}, message=message, status=status)
+        app.logger.debug(f"\n\nid is: {_id}\n\n")
+        
+        return flask.jsonify(result={}, message="Inserted!", status=1, mongo_id=_id)
 
     except:
-        return flask.jsonify(result={}, message=message, status=0)
+        return flask.jsonify(result={}, message="Server error!", status=0, mongo_id="None")
 
 #############
 
-app.debug = CONFIG.DEBUG
-if app.debug:
-    app.logger.setLevel(logging.DEBUG)
-
 if __name__ == "__main__":
-    print("Opening for global access on port {}".format(CONFIG.PORT))
-    app.run(port=CONFIG.PORT, host="0.0.0.0")
+    app.run(port=port_num, host="0.0.0.0")

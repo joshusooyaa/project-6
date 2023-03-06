@@ -1,89 +1,35 @@
 import os 
-from pymongo import MongoClient
-import logging
+import requests
+from datetime import datetime
 
-client = MongoClient(host=f"mongodb://{os.environ['MONGODB_HOSTNAME']}:27017")
-db = client.brevetsdb
-num_checkpoints = 20
-
+API_ADDR = os.environ["API_ADDR"]
+API_PORT = os.environ["API_PORT"]
+API_URL = f"http://{API_ADDR}:{API_PORT}/api/"
 
 def brevet_insert(brevet_dist, start_time, cp_data):
-  """Inserts the data passed in, into brevetsdb. Checks for invalid data as well.
-  Returns 1 on successful submit, 0 on failure (data inputted has something wrong with it)
-
-  Args:
-      otArr (str Arr): Holds the open time for each checkpoint
-      ctArr (str Arr): Holds the close time for each checkpoint
-      kmArr (str Arr): Holds the cp distance in KM for each checkpoint
-      start_time (str): Start time of the brevet
-      brevet_dist (str): Distance (in km) of the brevet
+  from flask_brevets import app
+  _id = requests.post(f"{API_URL}/brevets", json={"brevet_dist": brevet_dist, "start_time": start_time, "cp_data": cp_data}).json()
+  app.logger.debug(f"Object with id: {_id} inserted")
+  return _id
   
-  """
-  
-  # Error checking first
-  
-  # If no cps created (includes ot and ct empty)
-  if (len(cp_data['cp']) == 0):
-    message = "No checkpoints!"
-    return 0, message
-  
-  # Iterate through the data and ensure it's valid
-  max_val = '-1'
-  for i in range(len(cp_data['cp'])):
-    km = cp_data['cp_dist'][i]
-    ot = cp_data['ot'][i]
-    ct = cp_data['ct'][i]
-    
-    if (ot == '' or ct == ''):
-      message = 'Missing control times!'
-      return 0, message
-      
-    # Check if data is present, but control time(s) missing
-    # Also check if cps are out of order or same cp is entered
-    # This could occur if km > brevet distance * 1.2
-    else:
-      if (int(km) <= int (max_val)):
-        message = "Invalid CPs"
-        return 0, message
-      else:
-        max_val = km  
-    
-  # End error checking -- we can insert now.
-  
-  db.races.insert_one({
-                    "brevet_dist": brevet_dist, 
-                    "start_time" : start_time, 
-                    "cp_data"    : cp_data
-                    })
-  
-  return 1, "Inserted!"
-  
-
 def brevet_find():
-  """ Returns data from brevetsdb
+  from flask_brevets import app
+  app.logger.debug("GETTING")
+  races = requests.get(f"{API_URL}/brevets").json()
+  app.logger.debug("GOT")
+  # races contains a list of dictionaries containing all saved brevet information
+  # only need to get the last saved race data
+  race = races[-1]
   
-  Data will be in key-value pair
-  {
-    {"brevet_dist": brevet_dist, 
-     "start_time" : start_time, 
-     "cp_data"    : cp_data - dict containing three arrays: cps, ot, ct, and km
-  }
-  """
-
-  # Find most recently inserted document 
-  data = list(db.races.find().sort("_id", -1).limit(1))
+  # All datetime objects were converted to BSON format (ms since Jan 1, 1970) - need to change back
+  # To change back, divide by 1000 since fromtimestamp wants it in seconds
+  # Then format the time back to how it was originally inputted (strftime)
+  race["start_time"] = datetime.fromtimestamp(int(race["start_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
+  race["checkpoints"][0]["open_time"] = datetime.fromtimestamp(int(race["checkpoints"][0]["open_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
+  race["checkpoints"][0]["close_time"] = datetime.fromtimestamp(int(race["checkpoints"][0]["close_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
   
-  # Must pop '_id' from the dictionary because it contains an ObjectID which is
-  # not JSON serializable
-  if len(data) > 0:
-    for document in data:
-      document.pop('_id', None)
+  app.logger.debug(f"Race: {race}")
   
-  else:
-    return 0, [], [], []
-  
-  brevet = data[0]["brevet_dist"]
-  start = data[0]["start_time"]
-  cp_data = data[0]["cp_data"]
-  
-  return 1, brevet, start, cp_data
+  # race is a dictionary: {"length": length, "start_time": start_time, "checkpoints": list, len 0, containing a dict of cp data}
+  # Return all entries (except for id)
+  return race["length"], race["start_time"], race["checkpoints"]

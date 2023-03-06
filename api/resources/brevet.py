@@ -1,11 +1,20 @@
 """
 Resource: Brevet
+
+Used for getting, posting, deleting, and putting a single brevet
 """
 from flask import Response, request
 from flask_restful import Resource
 
 # You need to implement this in database/models.py
 from database.models import Brevet
+
+class Brevet(Resource):
+  def get(self, id):
+    object = Brevet.objects.get(id=id)
+    python_dict = object.to_mongo().to_dict()
+    return python_dict, 200
+
 
 # MongoEngine queries:
 # Brevet.objects() : similar to find_all. Returns a MongoEngine query
