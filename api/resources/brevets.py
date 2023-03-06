@@ -17,16 +17,16 @@ class Brevets(Resource):
   def post(self):
     try:
       from flask_api import app
+      
       input_json = request.json # Get data sent from JS in HTTP POST request
       
       # We're adding information now - 
       # length, start time, and checkpoint information (dict)
-      brev_distance = input_json["brevet_dist"]
-      start_time = input_json["start_time"]
-      checkpoints = input_json["cp_data"]
+      brev_distance = input_json["brevet_distance"]
+      start_time = input_json["start_date"]
+      checkpoints = input_json["items"]
       cps = input_json["cps"]
-      
-      app.logger.debug(f"cps: {cps}")
+  
 
       # Because checkpoints is a list, we want to loop through and create Checkpoint objects
       checkpointList = []
@@ -40,11 +40,9 @@ class Brevets(Resource):
           close_time=checkpoints["ct"][i],
         )
         checkpointList.append(checkpoint)
-        app.logger.debug(f"checkpointlist: {checkpointList}")
       
       _object = Brevet(length=brev_distance, start_time=start_time, checkpoints=checkpointList, cps=cps).save()
       
-      app.logger.debug(f"id: {_object.id}")
       return {'_id': str(_object.id)}, 200 
     
     except Exception as e:

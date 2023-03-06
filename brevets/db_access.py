@@ -8,7 +8,7 @@ API_URL = f"http://{API_ADDR}:{API_PORT}/api/"
 
 def brevet_insert(brevet_dist, start_time, cp_data, cps):
   from flask_brevets import app
-  _id = requests.post(f"{API_URL}/brevets", json={"brevet_dist": brevet_dist, "start_time": start_time, "cp_data": cp_data, "cps": cps}).json()
+  _id = requests.post(f"{API_URL}/brevets", json={"brevet_distance": brevet_dist, "start_date": start_time, "items": cp_data, "cps": cps}).json()
   return _id
   
 def brevet_find():

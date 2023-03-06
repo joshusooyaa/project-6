@@ -8,6 +8,9 @@ from flask_restful import Resource
 
 # You need to implement this in database/models.py
 from database.models import Brevet
+from database.models import Checkpoint
+
+from datetime import datetime
 
 class Brev(Resource):
   def get(self, _id):
@@ -18,7 +21,26 @@ class Brev(Resource):
     Brevet.objects.get(id=_id).delete()
 
   def put(self, _id):
-    pass
+    input_json = request.json
+    
+    brev_distance = input_json["brevet_distance"]
+    start_time = datetime.strptime(input_json["start_date"], "%Y-%m-%dT%H:%M")
+    checkpoints = input_json["items"]
+    cps = input_json["cps"]
+    
+    checkpointList = []
+    length = len(cps)
+      
+    for i in range(length):
+      checkpoint = Checkpoint(
+        distance=checkpoints["cp_dist"][i],
+        location=checkpoints["location"][i],
+        open_time=datetime.strptime(checkpoints["ot"][i], "%Y-%m-%dT%H:%M"),
+        close_time=datetime.strptime(checkpoints["ct"][i], "%Y-%m-%dT%H:%M")
+      )
+      checkpointList.append(checkpoint)
+    
+    Brevet.objects(id=_id).update(length=brev_distance, set__start_time=start_time, checkpoints=checkpointList, cps=cps)
   
   
 # MongoEngine queries:
