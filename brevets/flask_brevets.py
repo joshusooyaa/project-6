@@ -77,10 +77,16 @@ def _calc_times():
 
 @app.route("/_fetch")
 def _fetch_data():
-    brev, start, cp_dict, cps = brevet_find()
+    data = brevet_find()
+    
+    # Races is empty
+    if data == -1:
+        return flask.jsonify(result={}, message="No data stored", success=0)
+    else:
+        brev, start, cp_dict, cps = data
 
-    result = {"brevet": brev, "start_time": start, "cp_data": cp_dict, "cps": cps}
-    return flask.jsonify(result=result)
+        result = {"brevet": brev, "start_time": start, "cp_data": cp_dict, "cps": cps}
+        return flask.jsonify(result=result, message="Successful fetch!", success=1)
 
 
 

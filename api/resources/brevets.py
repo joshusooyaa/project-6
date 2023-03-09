@@ -12,6 +12,7 @@ class Brevets(Resource):
   def get(self):
     from flask_api import app
     json_object = Brevet.objects().to_json()
+    app.logger.debug(f"object: {json_object}")
     return Response(json_object, mimetype="application/json", status=200)
   
   def post(self):

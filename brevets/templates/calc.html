@@ -166,10 +166,14 @@
                      // A for loop is used to get the JSON information for all 20 checkpoints
                      $.getJSON(FETCH_URL, {}).done(
                         function(data) {
-                           if (data.err) { // Responds if data is empty
+                           if (data.err) {
                               console.log(data.err);
                            }
+                           if (data.success == 0) {
+                              console.log(data.message)
+                           }
                            else {
+                              console.log(data.message)
                               // First wipe the page (specifically the cp info)
                               for (let i = 0; i < 20; i++) {
                                  open_time_field[i].value = ""

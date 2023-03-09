@@ -16,12 +16,21 @@ def brevet_find():
   races = requests.get(f"{API_URL}/brevets").json()
   # races contains a list of dictionaries containing all saved brevet information
   # only need to get the last saved race data
-  race = races[-1]
+  # also check if races actually has something in it, if it's empty we'll get indexerror
+  if races:
+    race = races[-1]
+  else:
+    return -1
+
   
   # All datetime objects were converted to BSON format (ms since Jan 1, 1970) - need to change back
   # To change back, divide by 1000 since fromtimestamp wants it in seconds
   # Then format the time back to how it was originally inputted (strftime)
-  # race["start_time"] = datetime.fromtimestamp(int(race["start_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
+  time = race["start_time"]
+  app.logger.debug(f"start time is: {time}")
+  race["start_time"] = datetime.fromtimestamp(int(race["start_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
+  time = race["start_time"]
+  app.logger.debug(f"start time is now: {time}")
   for i in range(len(race["cps"])):
     race["checkpoints"][i]["open_time"] = datetime.fromtimestamp(int(race["checkpoints"][i]["open_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")
     race["checkpoints"][i]["close_time"] = datetime.fromtimestamp(int(race["checkpoints"][i]["close_time"]["$date"]) / 1000).strftime("%Y-%m-%dT%H:%M")

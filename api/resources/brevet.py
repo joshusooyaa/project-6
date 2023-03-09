@@ -21,26 +21,48 @@ class Brev(Resource):
     Brevet.objects.get(id=_id).delete()
 
   def put(self, _id):
+    from flask_api import app
+    
     input_json = request.json
     
-    brev_distance = input_json["brevet_distance"]
-    start_time = datetime.strptime(input_json["start_date"], "%Y-%m-%dT%H:%M")
-    checkpoints = input_json["items"]
-    cps = input_json["cps"]
+    update_dict = {} # This will contain what gets updated
     
-    checkpointList = []
-    length = len(cps)
+    # get is used to store "None" if field is empty/ or rather, doesn't exist
+    # a put request could end up wanting to just update brevet_distance, or checkpoints
+    # and doesn't need to have all the other information
+    brev_distance = input_json.get("brevet_distance")
+    checkpoints = input_json.get("items")
+    cps = input_json.get("cps")
+    start_time = input_json.get("start_date")
+    
+    if brev_distance:
+      update_dict["length"] = brev_distance
+    
+    if start_time:
+      start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
+      update_dict["start_time"] = start_time
+    
+    checkpointList = None
+    
+    if cps is not None:
+      checkpointList = []
+      length = len(cps)
+        
+      for i in range(length):
+        checkpoint = Checkpoint(
+          distance=checkpoints["cp_dist"][i],
+          location=checkpoints["location"][i],
+          open_time=datetime.strptime(checkpoints["ot"][i], "%Y-%m-%dT%H:%M"),
+          close_time=datetime.strptime(checkpoints["ct"][i], "%Y-%m-%dT%H:%M")
+        )
+        checkpointList.append(checkpoint)
       
-    for i in range(length):
-      checkpoint = Checkpoint(
-        distance=checkpoints["cp_dist"][i],
-        location=checkpoints["location"][i],
-        open_time=datetime.strptime(checkpoints["ot"][i], "%Y-%m-%dT%H:%M"),
-        close_time=datetime.strptime(checkpoints["ct"][i], "%Y-%m-%dT%H:%M")
-      )
-      checkpointList.append(checkpoint)
+      update_dict["checkpoints"] = checkpointList
+      update_dict["cps"] = cps
     
-    Brevet.objects(id=_id).update(length=brev_distance, set__start_time=start_time, checkpoints=checkpointList, cps=cps)
+    app.logger.debug(f"Dict: {update_dict}\n\n")
+    
+    Brevet.objects.get(id=_id).update(**update_dict)
   
   
 # MongoEngine queries:
