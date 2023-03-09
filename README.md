@@ -78,15 +78,6 @@ The post method does a little more work, but essentially all that happens is tha
 `models.py` is very simple in that it simply defines the structure of the data stored inside of the MongoDB. Brevet tells us how brevet (collection) will store its documents - they will be brevet objects. Checkpoints is a little different in that it's a subdocument, meaning that it exists inside of a document. Well, Checkpoints will be subdocuments of Brevet objects.
 
 -----
-## Authors
-
-Michal Young, Ram Durairajan. Updated by Ali Hassani.
-
-Adjusted by Josh Sawyer\
-jsawyer2@uoregon.edu
-
-
-
 
 ## Authors
 
