@@ -32,20 +32,18 @@ class Brevets(Resource):
 
     # Because checkpoints is a list, we want to loop through and create Checkpoint objects
     length = len(checkpoints["distance"]) # Get length of the array holding the distances
-    checkpointList = None
-    if (length > 0):
-      checkpointList = []
-    
-      for i in range(length):
-        open_t = datetime.strptime(checkpoints["open_time"][i], "%Y-%m-%dT%H:%M")
-        close_t = datetime.strptime(checkpoints["close_time"][i], "%Y-%m-%dT%H:%M")
-        checkpoint = Checkpoint(
-          distance=checkpoints["distance"][i],
-          location=checkpoints["location"][i],
-          open_time=open_t,
-          close_time=close_t
-        )
-        checkpointList.append(checkpoint)
+
+    checkpointList = []
+    for i in range(length):
+      open_t = datetime.strptime(checkpoints["open_time"][i], "%Y-%m-%dT%H:%M")
+      close_t = datetime.strptime(checkpoints["close_time"][i], "%Y-%m-%dT%H:%M")
+      checkpoint = Checkpoint(
+        distance=checkpoints["distance"][i],
+        location=checkpoints["location"][i],
+        open_time=open_t,
+        close_time=close_t
+      )
+      checkpointList.append(checkpoint)
     
     _object = Brevet(length=brev_distance, start_time=start_time, checkpoints=checkpointList).save()
     

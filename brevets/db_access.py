@@ -33,3 +33,6 @@ def brevet_find():
     # race is a dictionary: {"length": length, "start_time": start_time, "checkpoints": list, len 0, containing a dict of cp data}
     # Return all entries (except for id)
     return race["length"], race["start_time"], race["checkpoints"]
+  
+  else:
+    return -1 # Returns status of -1
