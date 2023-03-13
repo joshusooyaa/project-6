@@ -219,35 +219,25 @@
                      
                      // Need to convert the fields to readable values
                      // Only need to save km (and not miles) since we can just convert km to miles when loading
-                     var kmArray = [];
-                     var otfArray = [];
-                     var ctfArray = [];
-                     var cpvals = [];
-                     var locations = [];
                      var start_date = $("#begin_date").val();
                      var brevet_distance = $("#brevet_dist_km").val();
                      
-                     var items = [];
-                     var count = 0;
+                     var checkpoints = [];
 
                      for (let i = 0; i < 20; i++) {
                         if (km[i].value != '') {
-                           cpvals[count++] = i;
-                           locations.push(location[i].value)
-                           kmArray.push(km[i].value);
-                           otfArray.push(open_time_field[i].value);
-                           ctfArray.push(close_time_field[i].value);
+                           checkpoint = {"distance": km[i].value, 
+                                         "location": location[i].value,
+                                         "open_time": open_time_field[i].value,
+                                         "close_time": close_time_field[i].value
+                                       };
+                           checkpoints.push(checkpoint)
                         }
                      }
 
-                     items_json = {
-                        "distance": kmArray,
-                        "location": locations,
-                        "open_time": otfArray,
-                        "close_time": ctfArray,
-                     }
+                     console.log(checkpoints)
 
-                     var data_to_send = {length: brevet_distance, start_time: start_date, checkpoints: items_json}
+                     var data_to_send = {length: brevet_distance, start_time: start_date, checkpoints: checkpoints}
                      // {'brevet_distance': '', 'start_time': '', 'cp_dist': {'cp': [], 'ot': [], 'ct': [], 'cp_dist': []}}
                      console.log("Inserting Data")
 

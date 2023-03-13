@@ -99,7 +99,9 @@ def _insert_data():
         length = input_json["length"]
         checkpoints = input_json["checkpoints"]
         
-        if (len(checkpoints["open_time"]) == 0):
+        
+        
+        if (len(checkpoints) == 0):
             return flask.jsonify(result={}, message="No checkpoint information", status=0, mongo_id="None")
         
         app.logger.debug("Sending insert")
