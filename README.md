@@ -14,7 +14,15 @@ After copying the obj ID you'll make requests to http://localhost:5001/api/breve
 
 `DELETE`: curl -X "DELETE" http://localhost:5001/api/brevet/<id_here>
 
-`PUT`: curl -X "PUT" -H 'Content-Type: application/json' -d '{"brevet_distance":"###","start_date":"YYYY-MM-DDTHH:MM","items":{"location":[""],"ot":["YYYY-MM-DDTHH:MM"],"ct":["YYYY-MM-DDTHH:MM"],"cp_dist":["dist_in_km"]}}' http://localhost:5001/api/brevet/<id_here>
+`PUT`: curl -X "PUT" -H 'Content-Type: application/json' -d '{"length": "600",
+    "start_time": "YYYY-MM-DDTHH:MM",
+    "checkpoints": [
+        {
+            "distance": "###",
+            "location": "'name'",
+            "open_time": "YYYY-MM-DDTHH:MM",
+            "close_time": "YYYY-MM-DDTHH:MM"
+        },}' http://localhost:5001/api/brevet/<id_here>
 
 `GET`: curl -X "GET" -H http://localhost:5001/api/brevet<id_here>
 
