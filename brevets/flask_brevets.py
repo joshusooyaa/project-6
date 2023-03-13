@@ -83,9 +83,9 @@ def _fetch_data():
     if data == -1:
         return flask.jsonify(result={}, message="No data stored", success=0)
     else:
-        brev, start, cp_dict, cps = data
+        brev, start, cp_dict = data
 
-        result = {"brevet": brev, "start_time": start, "cp_data": cp_dict, "cps": cps}
+        result = {"brevet": brev, "start_time": start, "cp_data": cp_dict}
         return flask.jsonify(result=result, message="Successful fetch!", success=1)
 
 
@@ -98,14 +98,13 @@ def _insert_data():
         start_date = input_json["start_date"]
         brevet_distance = input_json["brevet_distance"]
         cp_data = input_json["items"]
-        cps = input_json["cps"]
         
-        if (len(cps) == 0):
+        if (len(cp_data["ot"]) == 0):
             return flask.jsonify(result={}, message="No checkpoint information", status=0, mongo_id="None")
         
         app.logger.debug("Sending insert")
 
-        _id = brevet_insert(brevet_distance, start_date, cp_data, cps)
+        _id = brevet_insert(brevet_distance, start_date, cp_data)
         
         app.logger.debug(f"\n\nid is: {_id}\n\n")
         

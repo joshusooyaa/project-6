@@ -32,7 +32,6 @@ class Brev(Resource):
     # and doesn't need to have all the other information
     brev_distance = input_json.get("brevet_distance")
     checkpoints = input_json.get("items")
-    cps = input_json.get("cps")
     start_time = input_json.get("start_date")
     
     if brev_distance:
@@ -44,21 +43,23 @@ class Brev(Resource):
     
     checkpointList = None
     
-    if cps is not None:
+    if checkpoints is not None:
+      # Because checkpoints is a list, we want to loop through and create Checkpoint objects
       checkpointList = []
-      length = len(cps)
-        
+      length = len(checkpoints["cp_dist"]) # Get length of the array holding the distances
+      
       for i in range(length):
+        open_t = datetime.strptime(checkpoints["ot"][i], "%Y-%m-%dT%H:%M")
+        close_t = datetime.strptime(checkpoints["ct"][i], "%Y-%m-%dT%H:%M")
         checkpoint = Checkpoint(
           distance=checkpoints["cp_dist"][i],
           location=checkpoints["location"][i],
-          open_time=datetime.strptime(checkpoints["ot"][i], "%Y-%m-%dT%H:%M"),
-          close_time=datetime.strptime(checkpoints["ct"][i], "%Y-%m-%dT%H:%M")
+          open_time=open_t,
+          close_time=close_t
         )
         checkpointList.append(checkpoint)
       
       update_dict["checkpoints"] = checkpointList
-      update_dict["cps"] = cps
     
     app.logger.debug(f"Dict: {update_dict}\n\n")
     

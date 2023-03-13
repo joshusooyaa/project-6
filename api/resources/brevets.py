@@ -8,6 +8,8 @@ from flask_restful import Resource
 from database.models import Brevet
 from database.models import Checkpoint
 
+from datetime import datetime
+
 class Brevets(Resource):
   def get(self):
     from flask_api import app
@@ -25,24 +27,27 @@ class Brevets(Resource):
       # length, start time, and checkpoint information (dict)
       brev_distance = input_json["brevet_distance"]
       start_time = input_json["start_date"]
-      checkpoints = input_json["items"]
-      cps = input_json["cps"]
-  
+      checkpoints = input_json["items"]  
+      
+      start_time = datetime.strptime(start_time, "%Y-%m-%dT%H:%M")
 
       # Because checkpoints is a list, we want to loop through and create Checkpoint objects
       checkpointList = []
-      length = len(cps)
+      length = len(checkpoints["cp_dist"]) # Get length of the array holding the distances
       
       for i in range(length):
+        open_t = datetime.strptime(checkpoints["ot"][i], "%Y-%m-%dT%H:%M")
+        close_t = datetime.strptime(checkpoints["ct"][i], "%Y-%m-%dT%H:%M")
         checkpoint = Checkpoint(
           distance=checkpoints["cp_dist"][i],
           location=checkpoints["location"][i],
-          open_time=checkpoints["ot"][i], 
-          close_time=checkpoints["ct"][i],
+          open_time=open_t,
+          close_time=close_t
         )
         checkpointList.append(checkpoint)
+        app.logger.debug("test")
       
-      _object = Brevet(length=brev_distance, start_time=start_time, checkpoints=checkpointList, cps=cps).save()
+      _object = Brevet(length=brev_distance, start_time=start_time, checkpoints=checkpointList).save()
       
       return {'_id': str(_object.id)}, 200 
     
