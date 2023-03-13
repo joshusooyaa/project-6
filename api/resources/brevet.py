@@ -30,9 +30,9 @@ class Brev(Resource):
     # get is used to store "None" if field is empty/ or rather, doesn't exist
     # a put request could end up wanting to just update brevet_distance, or checkpoints
     # and doesn't need to have all the other information
-    brev_distance = input_json.get("brevet_distance")
-    checkpoints = input_json.get("items")
-    start_time = input_json.get("start_date")
+    brev_distance = input_json.get("length")
+    checkpoints = input_json.get("checkpoints")
+    start_time = input_json.get("start_time")
     
     if brev_distance:
       update_dict["length"] = brev_distance
@@ -46,13 +46,13 @@ class Brev(Resource):
     if checkpoints is not None:
       # Because checkpoints is a list, we want to loop through and create Checkpoint objects
       checkpointList = []
-      length = len(checkpoints["cp_dist"]) # Get length of the array holding the distances
+      length = len(checkpoints["distance"]) # Get length of the array holding the distances
       
       for i in range(length):
-        open_t = datetime.strptime(checkpoints["ot"][i], "%Y-%m-%dT%H:%M")
-        close_t = datetime.strptime(checkpoints["ct"][i], "%Y-%m-%dT%H:%M")
+        open_t = datetime.strptime(checkpoints["open_time"][i], "%Y-%m-%dT%H:%M")
+        close_t = datetime.strptime(checkpoints["close_time"][i], "%Y-%m-%dT%H:%M")
         checkpoint = Checkpoint(
-          distance=checkpoints["cp_dist"][i],
+          distance=checkpoints["distance"][i],
           location=checkpoints["location"][i],
           open_time=open_t,
           close_time=close_t

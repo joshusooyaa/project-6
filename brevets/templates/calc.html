@@ -184,11 +184,11 @@
                               }
                               
                               // data.result: 
-                              // {'brevet': '', 'start_time': '', 'cp_data': {'cp': [], 'ot': [], 'ct': [], 'cp_dist': []}}
+                              // {'length': '', 'start_time': '', 'checkpoints': {'distance': [], 'location': [], 'open_time': [], 'close_time': []}}
                               console.log(data.result)
 
-                              var len = data.result.cp_data.length // Checkpoints
-                              data_dict = data.result.cp_data 
+                              var len = data.result.checkpoints.length // Checkpoints
+                              data_dict = data.result.checkpoints 
 
                               console.log(len);
 
@@ -201,7 +201,7 @@
                                  location[i].value = data_dict[i]["location"]
                               }
                               $("#begin_date").val(moment(data.result.start_time).format("YYYY-MM-DDTHH:mm"))
-                              $("#brevet_dist_km").val(data.result.brevet);
+                              $("#brevet_dist_km").val(data.result.length);
                               console.log("Data fetched!")  
                            }              
                          }
@@ -241,13 +241,13 @@
                      }
 
                      items_json = {
+                        "distance": kmArray,
                         "location": locations,
-                        "ot": otfArray,
-                        "ct": ctfArray,
-                        "cp_dist": kmArray,
+                        "open_time": otfArray,
+                        "close_time": ctfArray,
                      }
 
-                     var data_to_send = {brevet_distance: brevet_distance, start_date: start_date, items: items_json}
+                     var data_to_send = {length: brevet_distance, start_time: start_date, checkpoints: items_json}
                      // {'brevet_distance': '', 'start_time': '', 'cp_dist': {'cp': [], 'ot': [], 'ct': [], 'cp_dist': []}}
                      console.log("Inserting Data")
 
